@@ -1,0 +1,7 @@
+*
+!Jenkinsfile
+!Dockerfile
+!*.*
+!*/
+*.sw?
+.DS_Store
