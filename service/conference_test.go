@@ -1,4 +1,4 @@
-package appsvc_test
+package service_test
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	m "github.com/stretchr/testify/mock"
 
 	"github.com/confelo/confelo"
-	"github.com/confelo/confelo/appsvc"
 	"github.com/confelo/confelo/mock"
+	"github.com/confelo/confelo/service"
 )
 
 func TestCanCreateConference(t *testing.T) {
@@ -22,8 +22,11 @@ func TestCanCreateConference(t *testing.T) {
 		getRepo       func() *mock.ConferenceRepo
 	}{
 		"create conference": {
-			cmd: &confelo.CreateConferenceCommand{Name: "Foo Conference", Description: "Foo conf desc", WebsiteURL: "http://www.foo.com",
-				GetTicketsURL: "https://www.foo.com/get_tickets"},
+			cmd: &confelo.CreateConferenceCommand{Name: "Foo Conference"},
+			/*
+				cmd: &confelo.CreateConferenceCommand{Name: "Foo Conference", Description: "Foo conf desc", WebsiteURL: "http://www.foo.com",
+					GetTicketsURL: "https://www.foo.com/get_tickets"},
+			*/
 			expectedID:    1,
 			expectedError: nil,
 			getRepo: func() *mock.ConferenceRepo {
@@ -62,7 +65,7 @@ func TestCanCreateConference(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			repo := c.getRepo()
 
-			svc := appsvc.NewConference(repo)
+			svc := service.NewConference(repo)
 
 			id, err := svc.Create(context.Background(), c.cmd)
 
