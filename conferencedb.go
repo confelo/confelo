@@ -2,8 +2,8 @@ package confelo
 
 import "context"
 
-// ConferenceRepo defines conference repository interface
-type ConferenceRepo interface {
+// ConferenceDB defines conference db interface (repository)
+type ConferenceDB interface {
 	Save(context.Context, *Conference) (ConferenceID, error)
 	FindByName(context.Context, string) (*Conference, error)
 }

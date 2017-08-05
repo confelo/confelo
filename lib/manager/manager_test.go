@@ -1,4 +1,4 @@
-package service_test
+package manager_test
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	m "github.com/stretchr/testify/mock"
 
 	"github.com/confelo/confelo"
-	"github.com/confelo/confelo/mock"
-	"github.com/confelo/confelo/service"
+	"github.com/confelo/confelo/lib/manager"
+	"github.com/confelo/confelo/lib/mock"
 )
 
 func TestCanCreateConference(t *testing.T) {
@@ -18,8 +18,8 @@ func TestCanCreateConference(t *testing.T) {
 		cmd           *confelo.CreateConferenceCommand
 		expectedID    confelo.ConferenceID
 		expectedError error
-		assertCalls   func(*mock.ConferenceRepo)
-		getRepo       func() *mock.ConferenceRepo
+		assertCalls   func(*mock.ConferenceDB)
+		getRepo       func() *mock.ConferenceDB
 	}{
 		"create conference": {
 			cmd: &confelo.CreateConferenceCommand{Name: "Foo Conference"},
@@ -29,8 +29,8 @@ func TestCanCreateConference(t *testing.T) {
 			*/
 			expectedID:    1,
 			expectedError: nil,
-			getRepo: func() *mock.ConferenceRepo {
-				repo := new(mock.ConferenceRepo)
+			getRepo: func() *mock.ConferenceDB {
+				repo := new(mock.ConferenceDB)
 				repo.On("FindByName", m.Anything, m.Anything).Return(nil, nil)
 				repo.On("Save", context.Background(), &confelo.Conference{Name: "Foo Conference"}).Return(confelo.ConferenceID(1), nil)
 				return repo
@@ -41,8 +41,8 @@ func TestCanCreateConference(t *testing.T) {
 			cmd:           &confelo.CreateConferenceCommand{Name: "Bar Conference"},
 			expectedID:    2,
 			expectedError: nil,
-			getRepo: func() *mock.ConferenceRepo {
-				repo := new(mock.ConferenceRepo)
+			getRepo: func() *mock.ConferenceDB {
+				repo := new(mock.ConferenceDB)
 				repo.On("FindByName", m.Anything, m.Anything).Return(nil, nil)
 				repo.On("Save", context.Background(), &confelo.Conference{Name: "Bar Conference"}).Return(confelo.ConferenceID(2), nil)
 				return repo
@@ -53,8 +53,8 @@ func TestCanCreateConference(t *testing.T) {
 			cmd:           &confelo.CreateConferenceCommand{Name: "Baz Conference"},
 			expectedID:    0,
 			expectedError: fmt.Errorf("conference already exists"),
-			getRepo: func() *mock.ConferenceRepo {
-				repo := new(mock.ConferenceRepo)
+			getRepo: func() *mock.ConferenceDB {
+				repo := new(mock.ConferenceDB)
 				repo.On("FindByName", m.Anything, m.Anything).Return(&confelo.Conference{}, nil)
 				return repo
 			},
@@ -65,7 +65,7 @@ func TestCanCreateConference(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			repo := c.getRepo()
 
-			svc := service.NewConference(repo)
+			svc := manager.New(repo)
 
 			id, err := svc.Create(context.Background(), c.cmd)
 
