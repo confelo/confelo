@@ -7,10 +7,12 @@ import (
 	m "github.com/stretchr/testify/mock"
 )
 
+// ConferenceDB represents conference db mock
 type ConferenceDB struct {
 	m.Mock
 }
 
+// Save saves conference
 func (cr *ConferenceDB) Save(
 	c context.Context,
 	conf *confelo.Conference) (confelo.ConferenceID, error) {
@@ -20,6 +22,7 @@ func (cr *ConferenceDB) Save(
 	return args.Get(0).(confelo.ConferenceID), args.Error(1)
 }
 
+// FindByName finds conference by name
 func (cr *ConferenceDB) FindByName(
 	c context.Context,
 	name string) (*confelo.Conference, error) {

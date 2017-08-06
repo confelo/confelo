@@ -7,6 +7,7 @@ import (
 	h "github.com/tonto/kit/http"
 )
 
+// NewAH creates new ah service
 func NewAH(l *log.Logger) *AH {
 	svc := &AH{
 		logger: l,
@@ -19,27 +20,29 @@ func NewAH(l *log.Logger) *AH {
 	return svc
 }
 
+// AH represents AH status http service
 type AH struct {
 	h.BaseService
 
 	logger *log.Logger
 }
 
+// Prefix returns ah routing prefix
 func (a *AH) Prefix() string {
 	return "_ah"
 }
 
-func (s *AH) startHandler(w http.ResponseWriter, r *http.Request) {
-	s.logger.Println("_ah/start request received")
+func (ah *AH) startHandler(w http.ResponseWriter, r *http.Request) {
+	ah.logger.Println("_ah/start request received")
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *AH) stopHandler(w http.ResponseWriter, r *http.Request) {
-	s.logger.Println("_ah/stop request received")
+func (ah *AH) stopHandler(w http.ResponseWriter, r *http.Request) {
+	ah.logger.Println("_ah/stop request received")
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *AH) healthHandler(w http.ResponseWriter, r *http.Request) {
+func (*AH) healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("ok"))
 }
