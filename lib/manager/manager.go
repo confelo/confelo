@@ -1,4 +1,6 @@
-// Package manager provides manager application service functionality
+// Package manager provides conference manager use cases
+// It is used by admins and other alike users to handle
+// conference lifecycle (creation, deleteion, etc...)
 package manager
 
 import (
@@ -9,18 +11,24 @@ import (
 )
 
 // New constructs Manager application service
-func New(repo confelo.ConferenceDB) *Manager {
-	return &Manager{repo}
+func New(repo confDB, iam confelo.IAM) *Service {
+	return &Service{repo, iam}
 }
 
-// Manager represents Manager application service
-type Manager struct {
-	confDB confelo.ConferenceDB
+// Service represents manager application service
+type Service struct {
+	confDB confDB
+	iam    confelo.IAM
 }
 
-// Create creates conference given CreateConferenceCommand
-func (cs *Manager) Create(c context.Context, cmd *confelo.CreateConferenceCommand) (confelo.ConferenceID, error) {
-	conf, err := cs.confDB.FindByName(c, cmd.Name)
+// CreateConference creates conference given CreateConfCmd
+func (s *Service) CreateConference(c context.Context, cmd *confelo.CreateConfCmd) (confelo.ConferenceID, error) {
+	_, err := s.iam.AsPublisher(emailFromCtx(c))
+	if err != nil {
+		return 0, err
+	}
+
+	conf, err := s.confDB.FindByName(c, cmd.Name)
 	if err != nil {
 		return 0, err
 	}
@@ -29,13 +37,27 @@ func (cs *Manager) Create(c context.Context, cmd *confelo.CreateConferenceComman
 		return 0, fmt.Errorf("conference already exists")
 	}
 
-	conf = cs.conferenceFromCmd(cmd)
+	conf = s.conferenceFromCmd(cmd)
 
-	return cs.confDB.Save(c, conf)
+	return s.confDB.Save(c, conf)
 }
 
-func (cs *Manager) conferenceFromCmd(cmd *confelo.CreateConferenceCommand) *confelo.Conference {
-	return &confelo.Conference{
-		Name: cmd.Name,
+func (*Service) conferenceFromCmd(cmd *confelo.CreateConfCmd) *confelo.Conference {
+	conf := confelo.Conference{
+		Name:          cmd.Name,
+		Description:   cmd.Description,
+		WebsiteURL:    cmd.WebsiteURL,
+		GetTicketsURL: cmd.GetTicketsURL,
+		StartTime:     cmd.StartTime,
+		EndTime:       cmd.EndTime,
 	}
+	return &conf
+}
+
+func emailFromCtx(c context.Context) string {
+	e, ok := c.Value("email").(string)
+	if !ok {
+		return ""
+	}
+	return e
 }
