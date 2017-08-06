@@ -28,7 +28,7 @@ type AH struct {
 }
 
 // Prefix returns ah routing prefix
-func (a *AH) Prefix() string {
+func (ah *AH) Prefix() string {
 	return "_ah"
 }
 
